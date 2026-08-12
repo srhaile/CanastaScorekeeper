@@ -2,6 +2,7 @@ import React from 'react';
 import { Award, ChevronRight, Plus, ShieldAlert, Trophy } from 'lucide-react';
 import { Game } from '../types';
 import { getCumulativeScores, getInitialMeldRequirement } from '../lib/canasta';
+import { getTeamTheme } from '../lib/colorblind';
 
 interface GameHeaderProps {
   game: Game;
@@ -82,23 +83,20 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
 
       {/* Team Scoreboard Grid */}
       <div id="team-scoreboard-grid" className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {game.teams.map((team) => {
+        {game.teams.map((team, idx) => {
+          const theme = getTeamTheme(team.color, idx);
           const score = cumulativeScores[team.id] || 0;
           const initialMeldReq = getInitialMeldRequirement(score, game.houseRules);
           const progressPercent = Math.min(100, Math.max(0, (score / game.targetScore) * 100));
           const isLeader = team.id === leadingTeamId && game.rounds.length > 0;
 
-          // Color accent classes
-          const isEmerald = team.color === 'emerald' || team.color === 'teal';
-          const cardBgClass = isEmerald ? 'bg-slate-800/80 hover:bg-slate-800' : 'bg-slate-800/80 hover:bg-slate-800';
           const borderClass = isLeader ? 'border-amber-500/50 ring-1 ring-amber-500/30' : 'border-slate-700/80';
-          const badgeBg = isEmerald ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20';
 
           return (
             <div
               key={team.id}
               id={`team-card-${team.id}`}
-              className={`rounded-xl p-4 border transition ${cardBgClass} ${borderClass} flex flex-col justify-between space-y-3 relative overflow-hidden`}
+              className={`rounded-xl p-4 border transition bg-slate-800/80 hover:bg-slate-800 ${borderClass} flex flex-col justify-between space-y-3 relative overflow-hidden`}
             >
               {/* Leader Ribbon */}
               {isLeader && (
@@ -108,16 +106,18 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
                 </div>
               )}
 
-              {/* Team Name & Running Score */}
+              {/* Team Name & Running Score with Shape Badge */}
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className={`w-3 h-3 rounded-full ${isEmerald ? 'bg-emerald-400' : 'bg-indigo-400'}`} />
+                    <span className={`px-2 py-0.5 rounded text-xs font-black ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder} border`}>
+                      {theme.shapeSymbol}
+                    </span>
                     <h3 id={`team-name-${team.id}`} className="font-bold text-lg text-white">
                       {team.name}
                     </h3>
                   </div>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs text-slate-400 mt-1">
                     Needs <span id={`team-meld-req-${team.id}`} className="text-emerald-400 font-bold underline decoration-emerald-500/40 decoration-2">{initialMeldReq} pts</span> for Next Initial Meld
                   </p>
                 </div>
@@ -136,9 +136,9 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
                   <span>Progress to {game.targetScore.toLocaleString()}</span>
                   <span>{progressPercent.toFixed(1)}%</span>
                 </div>
-                <div className="w-full h-2 rounded-full bg-slate-900 border border-slate-700/50 overflow-hidden">
+                <div className="w-full h-2.5 rounded-full bg-slate-900 border border-slate-700/50 overflow-hidden">
                   <div
-                    className={`h-full transition-all duration-500 rounded-full ${isEmerald ? 'bg-gradient-to-r from-emerald-500 to-teal-400' : 'bg-gradient-to-r from-indigo-500 to-sky-400'}`}
+                    className={`h-full transition-all duration-500 rounded-full bg-gradient-to-r ${theme.progressGradient}`}
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>

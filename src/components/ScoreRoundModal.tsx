@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AlertTriangle, Calculator, Check, CheckCircle2, ChevronDown, ChevronUp, HelpCircle, Layers, Minus, Plus, RotateCcw, X } from 'lucide-react';
 import { Game, TeamScoreRoundInput } from '../types';
 import { calculateTeamRoundScore, createEmptyInput, getCumulativeScores, getInitialMeldRequirement } from '../lib/canasta';
+import { getTeamTheme } from '../lib/colorblind';
 import { MeldTrackerSection } from './MeldTrackerSection';
 
 interface ScoreRoundModalProps {
@@ -113,7 +114,8 @@ export const ScoreRoundModal: React.FC<ScoreRoundModalProps> = ({
 
         {/* Team Selector Navigation Bar */}
         <div className="px-5 pt-3 bg-slate-900/60 border-b border-slate-800 flex space-x-2 shrink-0">
-          {game.teams.map((t) => {
+          {game.teams.map((t, idx) => {
+            const theme = getTeamTheme(t.color, idx);
             const isActive = t.id === activeTeamId;
             const bd = teamBreakdowns[t.id];
             return (
@@ -128,7 +130,9 @@ export const ScoreRoundModal: React.FC<ScoreRoundModalProps> = ({
                 }`}
               >
                 <div className="flex items-center space-x-2">
-                  <span className={`w-2.5 h-2.5 rounded-full ${t.color === 'emerald' ? 'bg-emerald-400' : 'bg-indigo-400'}`} />
+                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-black ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder} border`}>
+                    {theme.shapeSymbol}
+                  </span>
                   <span>{t.name}</span>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${bd.netRoundPoints >= 0 ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-rose-950 text-rose-300 border border-rose-800'}`}>

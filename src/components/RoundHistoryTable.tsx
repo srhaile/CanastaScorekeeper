@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, Edit2, FileText, Trash2, Trophy } from 'lucide-react';
 import { Game } from '../types';
 import { getScoresUpToRound } from '../lib/canasta';
+import { getTeamTheme } from '../lib/colorblind';
 
 interface RoundHistoryTableProps {
   game: Game;
@@ -56,14 +57,19 @@ export const RoundHistoryTable: React.FC<RoundHistoryTableProps> = ({
           <thead>
             <tr className="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
               <th className="py-3 px-3 w-16">Round</th>
-              {game.teams.map((team) => (
-                <th key={team.id} className="py-3 px-3">
-                  <div className="flex items-center space-x-1.5">
-                    <span className={`w-2 h-2 rounded-full ${team.color === 'emerald' ? 'bg-emerald-400' : 'bg-indigo-400'}`} />
-                    <span className="text-slate-200">{team.name}</span>
-                  </div>
-                </th>
-              ))}
+              {game.teams.map((team, idx) => {
+                const theme = getTeamTheme(team.color, idx);
+                return (
+                  <th key={team.id} className="py-3 px-3">
+                    <div className="flex items-center space-x-1.5">
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-black ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder} border`}>
+                        {theme.shapeSymbol}
+                      </span>
+                      <span className="text-slate-200">{team.name}</span>
+                    </div>
+                  </th>
+                );
+              })}
               <th className="py-3 px-3 text-right w-24">Actions</th>
             </tr>
           </thead>

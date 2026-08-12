@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Check, Plus, Settings, Sparkles, X } from 'lucide-react';
+import { Check, Eye, Plus, Settings, Sparkles, X } from 'lucide-react';
 import { HouseRules, RulePreset, Team } from '../types';
 import { DEFAULT_HOUSE_RULES, RULE_PRESETS } from '../lib/canasta';
+import { COLORBLIND_SAFE_THEMES, getTeamTheme } from '../lib/colorblind';
 
 interface NewGameModalProps {
   onClose: () => void;
@@ -15,7 +16,9 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
   const [title, setTitle] = useState('Classic Canasta');
   const [targetScore, setTargetScore] = useState<number>(5000);
   const [team1Name, setTeam1Name] = useState('Team Us');
+  const [team1Color, setTeam1Color] = useState('sky_blue');
   const [team2Name, setTeam2Name] = useState('Team Them');
+  const [team2Color, setTeam2Color] = useState('golden_amber');
   
   const [selectedPresetId, setSelectedPresetId] = useState<string>('classic_standard');
   const [customHouseRules, setCustomHouseRules] = useState<HouseRules>({ ...DEFAULT_HOUSE_RULES });
@@ -28,11 +31,14 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const teams: Team[] = [
-      { id: 'team_1', name: team1Name.trim() || 'Team 1', color: 'emerald' },
-      { id: 'team_2', name: team2Name.trim() || 'Team 2', color: 'indigo' },
+      { id: 'team_1', name: team1Name.trim() || 'Team 1', color: team1Color },
+      { id: 'team_2', name: team2Name.trim() || 'Team 2', color: team2Color },
     ];
     onCreateGame(title.trim() || 'Canasta Game', teams, targetScore, customHouseRules);
   };
+
+  const theme1 = getTeamTheme(team1Color, 0);
+  const theme2 = getTeamTheme(team2Color, 1);
 
   return (
     <div id="new-game-modal-overlay" className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
@@ -46,7 +52,7 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
               <span>Start New Canasta Game</span>
             </h2>
             <p className="text-xs text-slate-400">
-              Configure team names, target score, and house rules.
+              Configure team names, colorblind-safe themes, target score, and house rules.
             </p>
           </div>
           <button
@@ -77,16 +83,26 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
             />
           </div>
 
-          {/* Teams Setup */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-300 block">
-              Team Names
-            </label>
+          {/* Teams Setup with Colorblind Accessible Themes */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-300 block">
+                Team Names & Colorblind-Safe Themes
+              </label>
+              <span className="text-[11px] text-sky-400 font-semibold flex items-center gap-1">
+                <Eye className="w-3.5 h-3.5" />
+                Dual-Coded (Color + Shapes)
+              </span>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="text-[11px] text-slate-400 block mb-1">Team 1</label>
-                <div className="flex items-center space-x-2 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2">
-                  <span className="w-3 h-3 rounded-full bg-emerald-400 shrink-0" />
+              {/* Team 1 */}
+              <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700 space-y-2">
+                <label className="text-[11px] text-slate-400 block font-semibold">Team 1</label>
+                <div className="flex items-center space-x-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2">
+                  <span className={`px-1.5 py-0.5 rounded text-xs font-black ${theme1.badgeBg} ${theme1.badgeText} ${theme1.badgeBorder} border`}>
+                    {theme1.shapeSymbol}
+                  </span>
                   <input
                     type="text"
                     id="input-team1-name"
@@ -95,12 +111,30 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
                     className="bg-transparent text-sm font-semibold text-white focus:outline-none w-full"
                   />
                 </div>
+
+                <div className="pt-1">
+                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Team 1 Theme</label>
+                  <select
+                    value={team1Color}
+                    onChange={(e) => setTeam1Color(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-medium focus:outline-none"
+                  >
+                    {Object.values(COLORBLIND_SAFE_THEMES).map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.shapeSymbol} {t.name} ({t.shapeName})
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              <div>
-                <label className="text-[11px] text-slate-400 block mb-1">Team 2</label>
-                <div className="flex items-center space-x-2 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2">
-                  <span className="w-3 h-3 rounded-full bg-indigo-400 shrink-0" />
+              {/* Team 2 */}
+              <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700 space-y-2">
+                <label className="text-[11px] text-slate-400 block font-semibold">Team 2</label>
+                <div className="flex items-center space-x-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2">
+                  <span className={`px-1.5 py-0.5 rounded text-xs font-black ${theme2.badgeBg} ${theme2.badgeText} ${theme2.badgeBorder} border`}>
+                    {theme2.shapeSymbol}
+                  </span>
                   <input
                     type="text"
                     id="input-team2-name"
@@ -108,6 +142,21 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
                     onChange={(e) => setTeam2Name(e.target.value)}
                     className="bg-transparent text-sm font-semibold text-white focus:outline-none w-full"
                   />
+                </div>
+
+                <div className="pt-1">
+                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Team 2 Theme</label>
+                  <select
+                    value={team2Color}
+                    onChange={(e) => setTeam2Color(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-medium focus:outline-none"
+                  >
+                    {Object.values(COLORBLIND_SAFE_THEMES).map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.shapeSymbol} {t.name} ({t.shapeName})
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>
