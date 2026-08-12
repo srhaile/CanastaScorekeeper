@@ -1,0 +1,6 @@
+{
+  "name": "Canasta Scorekeeper",
+  "description": "A comprehensive classic Canasta score tracker supporting customizable house rules, automatic point calculations, meld counters, and saved multi-day game sessions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
